@@ -23,20 +23,24 @@ def make_intervals(intervals : list[tuple],m=100):
 m=300
 
 it=0
-for alpha in [-0.5,-0.4,-0.3,-0.2]:
-    intervals = [(-1.0,-0.5),(-0.1,0.3),(0.6,1.0)]
+for alpha in [-0.8,-0.7,-0.6,-0.5,-0.4,-0.3]:
+    intervals = [(-1.0,alpha),(-0.2,-0.1),(0.1,0.2),(0.6,1.0)]
     xs=make_intervals(intervals,m=m)
     #xs=np.linspace(-1,1,m)
 
-    k=40
+    k=20
     V=poly.poly_basis(xs,k)
-    #print(np.linalg.norm(V.T @ V - np.eye(k)))
+    y = (1.0/xs)
+    p = V @ (V.T @ y)
 
-    Q,R,p=la.qr(V.T,mode='economic',pivoting=True)
-
-
-    #print(np.linalg.norm(Q@R - V[p,:].T))
-    plt.scatter(xs[p[0:k]],np.zeros(k),s=4)
+    for i in range(0,xs.size,m):
+        ibeg=i
+        iend=i+m
+        plt.plot(xs[ibeg:iend],np.abs(y[ibeg:iend]-p[ibeg:iend]),color='blue')
+    #plt.plot(xs,np.abs(y-p))
     for a,b in intervals:
         plt.axvspan(a,b,color='yellow',alpha=0.3)
-    plt.savefig("rrqr_subset.svg")
+    plt.ylim(0,3)
+    plt.savefig(f"approx/p_{str(it).zfill(3)}.svg")
+    plt.close()
+    it=it+1
